@@ -1,5 +1,6 @@
 import os
 import json
+import re
 from typing import Dict, List, Optional, Any
 from langchain_openai import AzureChatOpenAI
 from langchain.schema import HumanMessage, AIMessage
@@ -7,11 +8,6 @@ from langchain.memory import ConversationBufferMemory
 
 # Memory store for conversations
 memory_store = {}
-
-def load_agents(file_path="agents.json"):
-    """Load agents data from file."""
-    with open(file_path, "r") as f:
-        return json.load(f)["agents"]
 
 def get_memory(session_id):
     """Get or create memory for a session."""
@@ -29,10 +25,10 @@ def get_llm():
         temperature=0.2
     )
 
-def format_tools_context(agent):
+def format_tools_context(tools):
     """Format existing tools for prompt context."""
     tools_context = "Existing tools:\n"
-    for tool in agent["tools"]:
+    for tool in tools:
         tools_context += f"- {tool['name']}: {tool['description']}\n"
     return tools_context
 
@@ -73,28 +69,33 @@ def clean_code(code):
     
     return code.strip()
 
-def generate_tool(query, agent_id, session_id=None, agents_data=None):
-    """Generate a tool based on query and agent."""
-    # Load agents if not provided
-    if agents_data is None:
-        agents_data = load_agents()
+def extract_function_name(code):
+    """Extract the function name from the generated code."""
+    # Find the first function definition
+    match = re.search(r"def\s+([a-zA-Z0-9_]+)\s*\(", code)
+    if match:
+        return match.group(1)
     
+    # Try to find tool name
+    match = re.search(r"([a-zA-Z0-9_]+)_tool\s*=\s*BaseTool", code)
+    if match:
+        return match.group(1)
+    
+    return None
+
+def generate_tool(query, agent_name, agent_description, tools, session_id=None):
+    """Generate a tool based on query and agent info."""
     # Create a session ID if not provided
     session_id = session_id or f"session_{len(memory_store) + 1}"
     
     # Get memory
     memory = get_memory(session_id)
     
-    # Find the selected agent
-    agent = next((a for a in agents_data if a["id"] == agent_id), None)
-    if not agent:
-        return {"error": f"Agent with ID {agent_id} not found"}
-    
     # Get LLM
     llm = get_llm()
     
     # Format context
-    tools_context = format_tools_context(agent)
+    tools_context = format_tools_context(tools)
     history_text = format_history(memory)
     
     # Create prompt
@@ -102,7 +103,7 @@ def generate_tool(query, agent_id, session_id=None, agents_data=None):
 You are a tool generation assistant that creates Python functions and BaseTool definitions.
 
 QUERY: {query}
-AGENT: {agent["name"]} - {agent["description"]}
+AGENT: {agent_name} - {agent_description}
 {tools_context}
 {history_text}
 
@@ -163,29 +164,24 @@ function_name_tool = BaseTool(
     # Clean up code
     tool_code = clean_code(tool_code)
     
+    # Extract function name
+    function_name = extract_function_name(tool_code)
+    
     # Store the generated tool in memory
     memory.chat_memory.add_ai_message(tool_code)
     
     return {
         "code": tool_code,
-        "agent": agent["name"],
-        "session_id": session_id
+        "agent_name": agent_name,
+        "session_id": session_id,
+        "function_name": function_name
     }
 
-def process_feedback(feedback, session_id, agent_id, query=None, agents_data=None):
+def process_feedback(feedback, session_id, agent_name, agent_description, tools, query=None):
     """Process feedback and regenerate tool."""
-    # Load agents if not provided
-    if agents_data is None:
-        agents_data = load_agents()
-    
     # Check if session exists
     if session_id not in memory_store:
         return {"error": "Session not found"}
-    
-    # Find the selected agent
-    agent = next((a for a in agents_data if a["id"] == agent_id), None)
-    if not agent:
-        return {"error": f"Agent with ID {agent_id} not found"}
     
     # Get memory
     memory = get_memory(session_id)
@@ -197,7 +193,7 @@ def process_feedback(feedback, session_id, agent_id, query=None, agents_data=Non
     llm = get_llm()
     
     # Format context
-    tools_context = format_tools_context(agent)
+    tools_context = format_tools_context(tools)
     original_query = query or find_original_query(memory)
     history_text = format_history(memory)
     
@@ -206,7 +202,7 @@ def process_feedback(feedback, session_id, agent_id, query=None, agents_data=Non
 You are a tool generation assistant that creates Python functions and BaseTool definitions.
 
 QUERY: {original_query}
-AGENT: {agent["name"]} - {agent["description"]}
+AGENT: {agent_name} - {agent_description}
 {tools_context}
 {history_text}
 
@@ -266,64 +262,74 @@ function_name_tool = BaseTool(
     # Clean up code
     tool_code = clean_code(tool_code)
     
+    # Extract function name
+    function_name = extract_function_name(tool_code)
+    
     # Store the regenerated tool in memory
     memory.chat_memory.add_ai_message(tool_code)
     
     return {
         "code": tool_code,
-        "agent": agent["name"],
-        "session_id": session_id
+        "agent_name": agent_name,
+        "session_id": session_id,
+        "function_name": function_name
     }
 
-def approve_tool(agent_id, code, session_id=None):
+def approve_tool(agent_name, code, function_name, session_id=None):
     """Save an approved tool (placeholder)."""
     # Here you would save the tool to your database or file
-    print(f"Tool approved and added to toolkit for agent {agent_id}")
+    print(f"Tool '{function_name}' approved and added to toolkit for agent '{agent_name}'")
     
     # Optionally clear session memory
     if session_id and session_id in memory_store:
         del memory_store[session_id]
     
-    return {"success": True, "message": f"Tool added to toolkit for agent {agent_id}"}
+    return {
+        "success": True, 
+        "message": f"Tool '{function_name}' added to toolkit for agent '{agent_name}'",
+        "function_name": function_name
+    }
 
-def get_agents_list(agents_data=None):
-    """Get list of available agents."""
-    if agents_data is None:
-        agents_data = load_agents()
-    
-    return [{"id": agent["id"], "name": agent["name"], "description": agent["description"]} 
-            for agent in agents_data]
-
-
-# Usage:
-# import os
-# from new_func import generate_tool, process_feedback, approve_tool
-
-# # Set environment variables
-# os.environ["AZURE_OPENAI_ENDPOINT"] = "your-endpoint"
-# os.environ["AZURE_OPENAI_API_KEY"] = "your-key"
-# os.environ["AZURE_OPENAI_DEPLOYMENT"] = "your-deployment"
+# Example agent info
+agent_name = "AWS Cloud Manager"
+agent_description = "Agent for managing AWS cloud resources and infrastructure"
+tools = [
+    {
+        "name": "list_ec2_instances_tool",
+        "description": "Lists all EC2 instances in a specified region"
+    },
+    {
+        "name": "start_ec2_instance_tool",
+        "description": "Starts an EC2 instance with the given instance ID"
+    }
+]
 
 # # Generate a tool
 # result = generate_tool(
-#     query="Create a tool to list all S3 buckets",
-#     agent_id="aws-agent"
+#     query="Create a tool to delete an S3 bucket",
+#     agent_name=agent_name,
+#     agent_description=agent_description,
+#     tools=tools
 # )
 
-# # Get generated code
+# # Access the function name
+# function_name = result["function_name"]
 # code = result["code"]
 # session_id = result["session_id"]
 
-# # Process feedback (if needed)
+# # Process feedback
 # improved = process_feedback(
-#     feedback="Add support for region parameter",
+#     feedback="Add error handling for bucket not found",
 #     session_id=session_id,
-#     agent_id="aws-agent"
+#     agent_name=agent_name,
+#     agent_description=agent_description,
+#     tools=tools
 # )
 
-# # Approve the final tool
-# approve_tool(
-#     agent_id="aws-agent",
+# # Approve the tool
+# approval = approve_tool(
+#     agent_name=agent_name,
 #     code=improved["code"],
+#     function_name=improved["function_name"],
 #     session_id=improved["session_id"]
 # )
