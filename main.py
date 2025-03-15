@@ -39,6 +39,7 @@ class FeedbackRequest(BaseModel):
     session_id: str
     feedback: str
     agent_id: str
+    query: Optional[str] = None
 
 @app.get("/agents")
 async def get_agents():
