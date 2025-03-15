@@ -175,3 +175,5 @@ cython_debug/
 bun.lock
 envsource.sh
 generate.sh
+
+.idea
