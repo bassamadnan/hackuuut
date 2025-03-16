@@ -4,6 +4,7 @@ import About from "./pages/About";
 import Home from "./pages/Home";
 import Chat from "./pages/Chat";
 import ToolGenerator from "./components/ToolGenerator";
+import AgentDemo from "./pages/AgentDemo";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/tools" element={<ToolGenerator />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/about" element={<About />} />
+        <Route path="/agent-demo" element={<AgentDemo />} />
       </Routes>
     </Router>
   );

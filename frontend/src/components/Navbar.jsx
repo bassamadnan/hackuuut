@@ -19,6 +19,12 @@ const Navbar = () => {
               <li>
                 <a onClick={() => navigate('/chat')}>Chat</a>
               </li>
+              <li>
+                <a onClick={() => navigate('/agent-demo')} className="flex items-center gap-1">
+                  <span>AWS Demo</span>
+                  <span className="badge badge-sm badge-accent">New</span>
+                </a>
+              </li>
             </>
           )}
         </ul>

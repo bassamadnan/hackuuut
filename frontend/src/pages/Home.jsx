@@ -8,7 +8,7 @@ const Home = () => {
     <div className="flex flex-col h-screen bg-gradient-to-b from-base-300 to-base-200">
       {/* Main content */}
       <div className="flex-1 overflow-y-auto p-4">
-        <div className="max-w-5xl mx-auto w-full">
+        <div className="max-w-7xl mx-auto w-full">
           <div className="text-center my-8">
             <h2 className="text-4xl font-bold mb-4">Welcome to Moya</h2>
             <p className="text-xl mb-8 max-w-2xl mx-auto">
@@ -16,7 +16,7 @@ const Home = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
             {/* Tool Generator Card */}
             <div className="card bg-base-100 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer" 
                  onClick={() => navigate('/tools')}>
@@ -48,6 +48,26 @@ const Home = () => {
                 <p className="mb-4">Interact with your AI agents through our intuitive chat interface</p>
                 <div className="card-actions">
                   <button className="btn btn-secondary shadow-sm">Start Chatting</button>
+                </div>
+              </div>
+            </div>
+
+            {/* Agent Demo Card */}
+            <div className="card bg-base-100 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer"
+                 onClick={() => navigate('/agent-demo')}>
+              <div className="absolute -top-2 -right-2">
+                <div className="badge badge-accent py-3 px-4">NEW</div>
+              </div>
+              <figure className="px-10 pt-10">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                </svg>
+              </figure>
+              <div className="card-body items-center text-center">
+                <h2 className="card-title text-2xl">AWS Cost Demo</h2>
+                <p className="mb-4">See how multiple AI agents collaborate to solve complex AWS cost issues</p>
+                <div className="card-actions">
+                  <button className="btn btn-accent shadow-sm">Try Demo</button>
                 </div>
               </div>
             </div>
