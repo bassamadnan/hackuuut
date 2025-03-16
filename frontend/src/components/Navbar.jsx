@@ -14,10 +14,10 @@ const Navbar = () => {
           {!isHome && (
             <>
               <li>
-                <a onClick={() => navigate('/leaderboard')}>Leaderboard</a>
+                <a onClick={() => navigate('/tools')}>Tool Generator</a>
               </li>
               <li>
-                <a onClick={() => navigate('/tasks')}>Tasks</a>
+                <a onClick={() => navigate('/chat')}>Chat</a>
               </li>
             </>
           )}
