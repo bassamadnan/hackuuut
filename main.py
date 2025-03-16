@@ -143,7 +143,7 @@ def generate_tool(query, agent_name, agent_description, tools, session_id=None):
     
     # Create prompt
     prompt = f"""
-You are a tool generation assistant that creates Python functions and BaseTool definitions.
+You are a tool generation assistant that creates Python functions and BaseTool definitions for the Moya framework.
 
 QUERY: {query}
 AGENT: {agent_name} - {agent_description}
@@ -151,20 +151,15 @@ AGENT: {agent_name} - {agent_description}
 {history_text}
 
 Generate a Python function and its corresponding BaseTool definition to address this query.
-Include necessary imports at the top of the code (e.g., boto3 for AWS, csv for data processing).
-The function should have proper type hints, docstrings, and implementation.
+DO NOT use type hints from the typing module unless you include the proper import.
+DO NOT use Dict, List, Optional, or Any directly without importing them.
+Keep the function simple and avoid unnecessary imports.
 The BaseTool should have a name, description, parameters, and required fields.
 Make the tool generic, not specific to any particular instance or situation.
 
 Use the following format:
 ```python
-# Include necessary imports here
-import boto3  # if dealing with AWS
-import json   # if handling JSON data
-import csv    # if working with CSV files
-# Add any other imports needed
-
-def function_name(param1: type, param2: type) -> return_type:
+def function_name(param1, param2):
     \"\"\"
     Description of what the function does.
     
@@ -195,7 +190,7 @@ function_name_tool = BaseTool(
 )
 ```
 """
-    
+
     # Store the user query in memory
     memory.chat_memory.add_user_message(f"QUERY: {query}")
     
@@ -258,7 +253,7 @@ def process_feedback(feedback, session_id, agent_name, agent_description, tools,
     
     # Create prompt
     prompt = f"""
-You are a tool generation assistant that creates Python functions and BaseTool definitions.
+You are a tool generation assistant that creates Python functions and BaseTool definitions for the Moya framework.
 
 QUERY: {original_query}
 AGENT: {agent_name} - {agent_description}
@@ -268,20 +263,15 @@ AGENT: {agent_name} - {agent_description}
 LATEST FEEDBACK: {feedback}
 
 Generate a Python function and its corresponding BaseTool definition to address this query.
-Include necessary imports at the top of the code (e.g., boto3 for AWS, csv for data processing).
-The function should have proper type hints, docstrings, and implementation.
+DO NOT use type hints from the typing module unless you include the proper import.
+DO NOT use Dict, List, Optional, or Any directly without importing them.
+Keep the function simple and avoid unnecessary imports.
 The BaseTool should have a name, description, parameters, and required fields.
 Make the tool generic, not specific to any particular instance or situation.
 
 Use the following format:
 ```python
-# Include necessary imports here
-import boto3  # if dealing with AWS
-import json   # if handling JSON data
-import csv    # if working with CSV files
-# Add any other imports needed
-
-def function_name(param1: type, param2: type) -> return_type:
+def function_name(param1, param2):
     \"\"\"
     Description of what the function does.
     
@@ -312,7 +302,6 @@ function_name_tool = BaseTool(
 )
 ```
 """
-    
     # Get response from LLM
     message = HumanMessage(content=prompt)
     response = llm.invoke([message])
