@@ -5,17 +5,20 @@ const Home = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="hero min-h-screen bg-base-200">
-      <div className="hero-content text-center">
-        <div className="max-w-4xl">
-          <h1 className="text-5xl font-bold mb-8">Welcome to Moya</h1>
-          <p className="text-xl mb-12">
-            A powerful framework for creating, managing, and orchestrating multiple AI agents
-          </p>
+    <div className="flex flex-col h-screen bg-gradient-to-b from-base-300 to-base-200">
+      {/* Main content */}
+      <div className="flex-1 overflow-y-auto p-4">
+        <div className="max-w-5xl mx-auto w-full">
+          <div className="text-center my-8">
+            <h2 className="text-4xl font-bold mb-4">Welcome to Moya</h2>
+            <p className="text-xl mb-8 max-w-2xl mx-auto">
+              A powerful framework for creating, managing, and orchestrating multiple AI agents
+            </p>
+          </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
             {/* Tool Generator Card */}
-            <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer" 
+            <div className="card bg-base-100 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer" 
                  onClick={() => navigate('/tools')}>
               <figure className="px-10 pt-10">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -27,13 +30,13 @@ const Home = () => {
                 <h2 className="card-title text-2xl">Tool Generator</h2>
                 <p className="mb-4">Create custom tools for your AI agents with our intuitive tool generator</p>
                 <div className="card-actions">
-                  <button className="btn btn-primary">Get Started</button>
+                  <button className="btn btn-primary shadow-sm">Get Started</button>
                 </div>
               </div>
             </div>
             
             {/* Chat Interface Card */}
-            <div className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer"
+            <div className="card bg-base-100 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer"
                  onClick={() => navigate('/chat')}>
               <figure className="px-10 pt-10">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -44,13 +47,13 @@ const Home = () => {
                 <h2 className="card-title text-2xl">Chat Interface</h2>
                 <p className="mb-4">Interact with your AI agents through our intuitive chat interface</p>
                 <div className="card-actions">
-                  <button className="btn btn-secondary">Start Chatting</button>
+                  <button className="btn btn-secondary shadow-sm">Start Chatting</button>
                 </div>
               </div>
             </div>
           </div>
           
-          <div className="mt-16">
+          <div className="text-center mt-8 mb-4">
             <p className="text-sm opacity-70">
               Powered by Moya - Meta Orchestration framework for Your Agents
             </p>
