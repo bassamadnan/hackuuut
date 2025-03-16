@@ -1,0 +1,191 @@
+/* Agent-specific chat bubbles */
+.chat-bubble-blue-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(59 130 246 / var(--tw-bg-opacity)) !important;
+  color: white !important;
+}
+
+.chat-bubble-green-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(34 197 94 / var(--tw-bg-opacity)) !important;
+  color: white !important;
+}
+
+.chat-bubble-red-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(239 68 68 / var(--tw-bg-opacity)) !important;
+  color: white !important;
+}
+
+.chat-bubble-purple-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(168 85 247 / var(--tw-bg-opacity)) !important;
+  color: white !important;
+}
+
+.chat-bubble-amber-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(245 158 11 / var(--tw-bg-opacity)) !important;
+  color: white !important;
+}
+
+/* Badge colors for agents */
+.badge-blue-500 {
+  background-color: rgb(59 130 246) !important;
+  color: white !important;
+}
+
+.badge-green-500 {
+  background-color: rgb(34 197 94) !important;
+  color: white !important;
+}
+
+.badge-red-500 {
+  background-color: rgb(239 68 68) !important;
+  color: white !important;
+}
+
+.badge-purple-500 {
+  background-color: rgb(168 85 247) !important;
+  color: white !important;
+}
+
+.badge-amber-500 {
+  background-color: rgb(245 158 11) !important;
+  color: white !important;
+}
+
+/* Step visualization styling */
+.agent-step-timeline {
+  position: relative;
+}
+
+.agent-step-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 15px;
+  width: 2px;
+  background: currentColor;
+  opacity: 0.2;
+}
+
+/* Agent status indicators */
+[data-agent-status="active"] {
+  background-color: rgba(46, 204, 113, 0.2);
+  color: rgb(46, 204, 113);
+}
+
+[data-agent-status="processing"] {
+  background-color: rgba(52, 152, 219, 0.2);
+  color: rgb(52, 152, 219);
+}
+
+[data-agent-status="delegating"] {
+  background-color: rgba(243, 156, 18, 0.2);
+  color: rgb(243, 156, 18);
+}
+
+[data-agent-status="standby"] {
+  background-color: rgba(155, 89, 182, 0.2);
+  color: rgb(155, 89, 182);
+}
+
+[data-agent-status="idle"] {
+  background-color: rgba(149, 165, 166, 0.2);
+  color: rgb(149, 165, 166);
+}
+
+/* Animation for transitions */
+.agent-appear {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.agent-appear-active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Highlight for command keywords */
+.keyword-highlight {
+  display: inline-block;
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.25rem;
+  font-family: monospace;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.keyword-next-step {
+  background-color: rgba(243, 156, 18, 0.2);
+  color: rgb(243, 156, 18);
+}
+
+.keyword-continue {
+  background-color: rgba(52, 152, 219, 0.2);
+  color: rgb(52, 152, 219);
+}
+
+/* Process steps visualization */
+.process-steps {
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.process-step {
+  position: relative;
+  padding-bottom: 1.5rem;
+}
+
+.process-step:last-child {
+  padding-bottom: 0;
+}
+
+.process-step::before {
+  content: "";
+  position: absolute;
+  left: -1.5rem;
+  top: 0.25rem;
+  height: 100%;
+  width: 2px;
+  background-color: currentColor;
+  opacity: 0.2;
+}
+
+.process-step:last-child::before {
+  height: 0;
+}
+
+.process-step-indicator {
+  position: absolute;
+  left: -1.75rem;
+  top: 0;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background-color: currentColor;
+  opacity: 0.8;
+  z-index: 1;
+}
+
+.process-step-content {
+  padding-left: 1rem;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .process-steps {
+    padding-left: 1rem;
+  }
+  
+  .process-step::before {
+    left: -1rem;
+  }
+  
+  .process-step-indicator {
+    left: -1.25rem;
+  }
+} 
