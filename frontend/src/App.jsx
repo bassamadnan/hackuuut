@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import Chat from "./pages/Chat";
 import ToolGenerator from "./components/ToolGenerator";
 import AgentDemo from "./pages/AgentDemo";
+import SimpleAgentDemo from "./pages/SimpleAgentDemo";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/chat" element={<Chat />} />
         <Route path="/about" element={<About />} />
         <Route path="/agent-demo" element={<AgentDemo />} />
+        <Route path="/simple-agent-demo" element={<SimpleAgentDemo />} />
       </Routes>
     </Router>
   );

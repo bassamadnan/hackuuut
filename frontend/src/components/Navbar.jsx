@@ -25,6 +25,12 @@ const Navbar = () => {
                   <span className="badge badge-sm badge-accent">New</span>
                 </a>
               </li>
+              <li>
+                <a onClick={() => navigate('/simple-agent-demo')} className="flex items-center gap-1">
+                  <span>Customer Returns Demo</span>
+                  <span className="badge badge-sm badge-success">New</span>
+                </a>
+              </li>
             </>
           )}
         </ul>

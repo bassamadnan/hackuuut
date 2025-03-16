@@ -1,0 +1,161 @@
+/* SimpleAgentDemo Styles */
+
+.simple-agent-demo {
+  padding-bottom: 2rem;
+}
+
+.simple-agent-demo .message {
+  margin-bottom: 1.5rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+}
+
+.simple-agent-demo .message:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.simple-agent-demo .user-message {
+  background-color: #f8f9fa;
+  border-left: 4px solid #6366f1;
+}
+
+.simple-agent-demo .agent-message {
+  background-color: white;
+  border: 1px solid #e2e8f0;
+}
+
+.simple-agent-demo .classifier-decision {
+  border-left: 4px solid #4B0082;
+}
+
+.simple-agent-demo .agent-header {
+  padding: 0.75rem 1rem;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.simple-agent-demo .agent-name {
+  font-weight: 600;
+}
+
+.simple-agent-demo .iteration-badge {
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.8rem;
+}
+
+.simple-agent-demo .message-content {
+  padding: 1rem;
+  line-height: 1.6;
+}
+
+.simple-agent-demo .user-content {
+  font-style: italic;
+  color: #4b5563;
+}
+
+/* Markdown content styles */
+.simple-agent-demo .message-content h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.simple-agent-demo .message-content h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.simple-agent-demo .message-content h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.simple-agent-demo .message-content ul, 
+.simple-agent-demo .message-content ol {
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.simple-agent-demo .message-content li {
+  margin-bottom: 0.25rem;
+}
+
+.simple-agent-demo .message-content p {
+  margin-bottom: 1rem;
+}
+
+.simple-agent-demo .message-content code {
+  background-color: #f1f5f9;
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.25rem;
+  font-family: monospace;
+}
+
+.simple-agent-demo .message-content pre {
+  background-color: #f8fafc;
+  padding: 1rem;
+  border-radius: 0.375rem;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+
+.simple-agent-demo .message-content a {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+.simple-agent-demo .agent-selection-card {
+  transition: all 0.2s ease;
+}
+
+.simple-agent-demo .agent-selection-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Animation for newly added agents */
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(52, 211, 153, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+}
+
+.simple-agent-demo .agent-added {
+  animation: pulse 2s infinite;
+}
+
+/* Progress indicators */
+.simple-agent-demo .progress {
+  height: 0.5rem;
+}
+
+/* Table styles */
+.simple-agent-demo table.table th {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .simple-agent-demo .message-container {
+    margin-left: -1rem;
+    margin-right: -1rem;
+  }
+  
+  .simple-agent-demo .message {
+    border-radius: 0;
+  }
+} 

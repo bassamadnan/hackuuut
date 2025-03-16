@@ -16,7 +16,7 @@ const Home = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
             {/* Tool Generator Card */}
             <div className="card bg-base-100 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer" 
                  onClick={() => navigate('/tools')}>
@@ -68,6 +68,26 @@ const Home = () => {
                 <p className="mb-4">See how multiple AI agents collaborate to solve complex AWS cost issues</p>
                 <div className="card-actions">
                   <button className="btn btn-accent shadow-sm">Try Demo</button>
+                </div>
+              </div>
+            </div>
+            
+            {/* Simple Agent Demo Card */}
+            <div className="card bg-base-100 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer"
+                 onClick={() => navigate('/simple-agent-demo')}>
+              <div className="absolute -top-2 -right-2">
+                <div className="badge badge-success py-3 px-4">NEW</div>
+              </div>
+              <figure className="px-10 pt-10">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </figure>
+              <div className="card-body items-center text-center">
+                <h2 className="card-title text-2xl">Customer Returns Demo</h2>
+                <p className="mb-4">See how agents are dynamically selected in different iterations for customer service</p>
+                <div className="card-actions">
+                  <button className="btn btn-success shadow-sm">Try Demo</button>
                 </div>
               </div>
             </div>
