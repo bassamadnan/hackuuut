@@ -1,5 +1,5 @@
 """
-Multi-agent system with dynamic tool generation capability.
+Multi-agent system with dynamic tool generation capability, using concurrent orchestration.
 """
 
 import os
@@ -10,15 +10,127 @@ from moya.tools.base_tool import BaseTool
 from moya.tools.ephemeral_memory import EphemeralMemory
 from moya.tools.tool_registry import ToolRegistry
 from moya.registry.agent_registry import AgentRegistry
-from moya.orchestrators.multi_agent_orchestrator import MultiAgentOrchestrator
+from moya.orchestrators.multi_agent_orchestrator_concurrent import MultiAgentOrchestratorConcurrent
 from moya.agents.azure_openai_agent import AzureOpenAIAgent, AzureOpenAIAgentConfig
 from moya.conversation.message import Message
-from moya.classifiers.llm_classifier import LLMClassifier
+from moya.classifiers.llm_classifier_concurrent import LLMClassifierConcurrent
 from new_func import generate_tool
+import threading
+import traceback
 
 # Configure basic logging
 # logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+# For tracking iterations
+ITERATION_COUNTERS = {"current": 0}
+
+# Custom orchestrator with better error handling
+class SafeMultiAgentOrchestratorConcurrent(MultiAgentOrchestratorConcurrent):
+    
+    def orchestrate(self, thread_id: str, user_message: str, stream_callback=None, **kwargs) -> str:
+        """
+        Orchestrate the message handling using intelligent agent selection with improved error handling.
+
+        :param thread_id: The conversation thread ID
+        :param user_message: The message from the user
+        :param stream_callback: Optional callback for streaming responses
+        :param kwargs: Additional context
+        :return: The concatenated response from all the chosen agents
+        """
+        EphemeralMemory.store_message(thread_id=thread_id, sender="user", content=user_message)
+        
+        all_responses = []
+        current_message = user_message
+        max_iterations = 5
+        available_agents = self.agent_registry.list_agents()
+        if not available_agents:
+            return "[No agents available to handle message.]"
+        
+        for _ in range(max_iterations):
+            agent_names = self.classifier.classify(
+                message=current_message,
+                thread_id=thread_id,
+                available_agents=available_agents
+            )
+            
+            if not agent_names and self.default_agent_name:
+                agent_names = [self.default_agent_name]
+            
+            agents = [self.agent_registry.get_agent(name) for name in agent_names if name]
+            agents = [agent for agent in agents if agent]
+            
+            if not agents:
+                if all_responses:
+                    return "\n\n".join(all_responses) + "\n\n[No suitable agent found for next step.]"
+                return "[No suitable agent found to handle message.]"
+            
+            responses = {}
+            
+            def run_agent(agent):
+                agent_prefix = f"[{agent.agent_name}] "
+                try:
+                    agent_response = agent.handle_message(current_message, thread_id=thread_id, **kwargs)
+                    responses[agent.agent_name] = agent_prefix + agent_response
+                except Exception as e:
+                    error_msg = str(e)
+                    tb = traceback.format_exc()
+                    logger.error(f"Error in agent {agent.agent_name}: {error_msg}\n{tb}")
+                    responses[agent.agent_name] = f"{agent_prefix}Error processing request: {error_msg}"
+                    if stream_callback:
+                        stream_callback(f"\n{agent_prefix}Error processing request: {error_msg}\n")
+            
+            threads = []
+            for agent in agents:
+                thread = threading.Thread(target=run_agent, args=(agent,))
+                threads.append(thread)
+                thread.start()
+            
+            for thread in threads:
+                thread.join()
+            
+            # Ensure we have at least one response from each agent
+            for agent in agents:
+                if agent.agent_name not in responses:
+                    responses[agent.agent_name] = f"[{agent.agent_name}] Failed to generate a response."
+            
+            # Print responses for debugging
+            if stream_callback:
+                for agent_name, response in responses.items():
+                    stream_callback(f"\n--- Response from {agent_name} ---\n{response}\n")
+            
+            current_output = "\n\n".join(responses.values())
+            all_responses.append(current_output)
+            
+            if "STOP" in current_output:
+                if stream_callback:
+                    stream_callback("\n[Workflow stopped based on agent decision]\n")
+                break
+            
+            if "NEXT_STEP" in current_output or "CONTINUE" in current_output:
+                if "NEXT_MESSAGE:" in current_output:
+                    parts = current_output.split("NEXT_MESSAGE:")
+                    if len(parts) > 1:
+                        current_message = parts[1].split("\n")[0].strip()
+                    else:
+                        current_message = f"Based on these results, what action should be taken?\n{current_output}"
+                else:
+                    current_message = f"Continue processing based on these results:\n{current_output}"
+                
+                if stream_callback:
+                    stream_callback("\n[Processing next step...]\n")
+            else:
+                break
+        
+        final_response = "\n\n".join(all_responses)
+        
+        EphemeralMemory.store_message(
+            thread_id=thread_id, 
+            sender="MultiAgentOrchestratorConcurrent", 
+            content=final_response
+        )
+        
+        return final_response
 
 # Create new dynamic tooling agent class
 class AzureOpenAIDynamicToolingAgent(AzureOpenAIAgent):
@@ -101,15 +213,15 @@ def list_s3_buckets():
         logger.error(f"Error listing S3 buckets: {str(e)}")
         return f"Error listing S3 buckets: {str(e)}"
 
-def describe_ec2_instance(instance_id: str):
+def describe_ec2_instance(instance_id: str = None):
     """
     Describe an EC2 instance by its ID.
     
     Args:
-        instance_id (str): The ID of the EC2 instance.
+        instance_id (str, optional): The ID of the EC2 instance. If not provided, will list available instances.
         
     Returns:
-        str: A string with instance details.
+        str: A string with instance details or a list of available instances.
     """
     try:
         # Mock implementation
@@ -127,6 +239,13 @@ def describe_ec2_instance(instance_id: str):
                 "PrivateIpAddress": "10.0.0.2"
             }
         }
+        
+        # If no instance_id provided, list available instances
+        if not instance_id:
+            instance_list = []
+            for id, details in instances.items():
+                instance_list.append(f"{id}: {details['InstanceType']} ({details['State']})")
+            return f"Available EC2 instances:\n" + "\n".join(instance_list)
         
         if instance_id in instances:
             instance = instances[instance_id]
@@ -226,15 +345,15 @@ def create_aws_agent(tool_registry):
     
     describe_ec2_instance_tool = BaseTool(
         name="describe_ec2_instance_tool",
-        description="Tool to describe an EC2 instance by its ID",
+        description="Tool to describe an EC2 instance by its ID. If no ID is provided, lists all available instances.",
         function=describe_ec2_instance,
         parameters={
             "instance_id": {
                 "type": "string",
-                "description": "The ID of the EC2 instance to describe"
+                "description": "The ID of the EC2 instance to describe (optional)"
             }
         },
-        required=["instance_id"]
+        required=[]  # Make instance_id optional
     )
     
     # Create a registry copy for this agent
@@ -257,6 +376,7 @@ def create_aws_agent(tool_registry):
         You can help with AWS-related operations and provide information about AWS resources.
         You have access to tools that can list S3 buckets and describe EC2 instances.
         If you don't have a tool for a specific AWS operation, you can generate a new tool.
+        
         Be helpful, concise, and professional in your responses.""",
         tool_registry=aws_tool_registry,
         model_name="gpt-4o",
@@ -321,6 +441,7 @@ def create_logging_agent(tool_registry):
         You can help search logs, analyze error patterns, and monitor system health.
         You have access to tools that can search logs and get error counts.
         If you don't have a tool for a specific logging operation, you can generate a new tool.
+        
         Be helpful, analytical, and focused in your responses.""",
         tool_registry=logging_tool_registry,
         model_name="gpt-4o",
@@ -333,19 +454,26 @@ def create_logging_agent(tool_registry):
     return AzureOpenAIDynamicToolingAgent(config=agent_config)
 
 def create_classifier_agent(tool_registry):
-    """Create a classifier agent to route messages to the appropriate agent."""
+    """Create a classifier agent to route messages to the appropriate agents."""
     # Create agent configuration
     agent_config = AzureOpenAIAgentConfig(
         agent_name="classifier",
         agent_type="AgentClassifier",
         description="Classifier for routing messages to specialized agents",
-        system_prompt="""You are a classifier. Your job is to determine the best agent based on the user's message:
-        1. If the message asks about AWS services, cloud resources, S3, EC2, or any AWS-related operations, return 'aws_agent'
-        2. If the message asks about logs, monitoring, errors, system health, or mentions log analysis, return 'logging_agent'
-        3. For any other query, determine the closest match based on the query content
+        system_prompt="""You are a classifier that determines which specialized agents should handle user requests.
+        Analyze the user's message and select ALL relevant specialized agents that should process this request concurrently.
         
-        Analyze the intent of the message carefully.
-        Return only the agent name as specified above.""",
+        Available agents are:
+        - aws_agent: Specialized in AWS cloud operations, S3 buckets, EC2 instances, and other AWS resources
+        - logging_agent: Specialized in log analysis, monitoring, error patterns, and system health
+        
+        For each user query, determine ALL agents that would be helpful in providing a comprehensive response.
+        For example, a query about AWS logs might need both the aws_agent AND the logging_agent.
+        
+        Return only agent names separated by commas. For example:
+        - "aws_agent,logging_agent" if both are relevant
+        - "aws_agent" if only AWS expertise is needed
+        - "logging_agent" if only logging expertise is needed""",
         tool_registry=tool_registry,
         model_name="gpt-4o",
         api_key=os.getenv("AZURE_OPENAI_API_KEY"),
@@ -356,8 +484,35 @@ def create_classifier_agent(tool_registry):
     # Create and return the classifier agent
     return AzureOpenAIAgent(config=agent_config)
 
+# Custom wrapper for tracking iterations and formatting responses
+class IterationTrackingCallback:
+    def __init__(self, original_callback=None):
+        self.original_callback = original_callback
+        self.buffer = ""
+        
+    def __call__(self, chunk):
+        # Track iteration progress
+        if "[Processing next step...]" in chunk:
+            ITERATION_COUNTERS["current"] += 1
+            print(f"\n[ITERATION {ITERATION_COUNTERS['current']} STARTING...]\n")
+            chunk = chunk.replace("[Processing next step...]", "")
+        
+        # Remove empty lines and clean up formatting
+        if chunk.strip():
+            # Clean up the chunk and make sure it's properly displayed
+            self.buffer += chunk
+            
+            # Pass to original callback for display
+            if self.original_callback:
+                self.original_callback(chunk)
+            else:
+                print(chunk, end="", flush=True)
+
 def setup_orchestrator():
-    """Set up the multi-agent orchestrator with all components."""
+    """Set up the concurrent multi-agent orchestrator with all components."""
+    # Reset iteration counter
+    ITERATION_COUNTERS["current"] = 0
+    
     # Set up shared tool registry
     shared_tool_registry = setup_tool_registry()
     
@@ -378,11 +533,11 @@ def setup_orchestrator():
     print("AWS Agent and Logging Agent have been registered")
     print("=========================")
     
-    # Create and configure the classifier
-    classifier = LLMClassifier(classifier_agent, default_agent="aws_agent")
+    # Create and configure the concurrent classifier
+    classifier = LLMClassifierConcurrent(classifier_agent, default_agent="aws_agent")
     
-    # Create the orchestrator
-    orchestrator = MultiAgentOrchestrator(
+    # Create the concurrent orchestrator
+    orchestrator = SafeMultiAgentOrchestratorConcurrent(
         agent_registry=registry,
         classifier=classifier,
         default_agent_name="aws_agent"
@@ -398,18 +553,15 @@ def main():
     print("=== Multi-Agent System with Dynamic Tool Generation ===")
     print("You can ask about AWS services or log analysis.")
     print("If the agent doesn't have a tool for your request, it can generate one!")
+    print("The system now supports CONCURRENT agent responses - multiple agents can work on your request at once!")
     print("Type 'exit' to quit")
     print("-" * 50)
-    
-    # Define streaming callback
-    def stream_callback(chunk):
-        print(chunk, end="", flush=True)
     
     # Store initial system message
     EphemeralMemory.store_message(
         thread_id=thread_id, 
         sender="system", 
-        content="Starting conversation with multi-agent system capable of dynamic tool generation."
+        content="Starting conversation with multi-agent system capable of dynamic tool generation and concurrent processing."
     )
     
     while True:
@@ -428,24 +580,30 @@ def main():
         session_summary = EphemeralMemory.get_thread_summary(thread_id)
         enriched_input = f"{session_summary}\nCurrent user message: {user_message}"
         
-        # Determine which agent to use (for logging purposes)
-        selected_agent = orchestrator.classifier.classify(user_message)
-        # print(f"\n[DEBUG] Selected agent: {selected_agent}")
-        
         # Print Assistant prompt and get response
         print("\nAssistant: ", end="", flush=True)
         
         try:
+            # Create the iteration tracking callback
+            stream_callback = IterationTrackingCallback(lambda chunk: print(chunk, end="", flush=True))
+            
+            # Orchestrate the response with the tracking callback
             response = orchestrator.orchestrate(
                 thread_id=thread_id,
                 user_message=enriched_input,
                 stream_callback=stream_callback
             )
+            
+            # Only print the completion message (the response content should have been streamed already)
+            print(f"\n\n[Completed with {ITERATION_COUNTERS['current']} iterations]")
             print()  # New line after response
         except Exception as e:
             logger.error(f"Error in orchestration: {str(e)}")
             print(f"\nError: {str(e)}")
             response = "I encountered an error processing your request."
+        
+        # Reset iteration counter for next request
+        ITERATION_COUNTERS["current"] = 0
         
         # Store the assistant's response
         EphemeralMemory.store_message(thread_id=thread_id, sender="assistant", content=response)
