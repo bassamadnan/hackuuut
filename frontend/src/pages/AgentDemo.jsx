@@ -15,10 +15,8 @@ const AgentDemo = () => {
   const [iterationAgents, setIterationAgents] = useState({});
   const [agents, setAgents] = useState({
     classifier: { color: 'bg-amber-500', icon: '🧠', responses: 0 },
-    ec2_agent: { color: 'bg-blue-500', icon: '💻', responses: 0 },
-    billing_agent: { color: 'bg-green-500', icon: '💲', responses: 0 },
-    security_agent: { color: 'bg-red-500', icon: '🔒', responses: 0 },
-    logs_agent: { color: 'bg-purple-500', icon: '📊', responses: 0 },
+    aws_agent: { color: 'bg-blue-500', icon: '💻', responses: 0 },
+    logging_agent: { color: 'bg-purple-500', icon: '📊', responses: 0 },
   });
   
   const messagesEndRef = useRef(null);
@@ -69,7 +67,6 @@ const AgentDemo = () => {
     setSessionId(null);
     setError(null);
     setSelectedAgent(null);
-    setShowSteps(false);
     setIterationAgents({});
     setAgents(prevAgents => {
       const resetAgents = {...prevAgents};
@@ -83,27 +80,12 @@ const AgentDemo = () => {
       // Add initial system message
       setMessages([{
         role: 'system',
-        content: '# Starting AWS Cost Spike Investigation\n\nInitiating concurrent multi-agent analysis to investigate the AWS cost spike. Multiple specialized agents will analyze this issue concurrently across several iterations.'
+        content: '# Starting Multi-Agent Investigation\n\nInitiating concurrent multi-agent analysis with dynamic tool generation capability. Multiple specialized agents will analyze this issue, and can create new tools as needed.'
       }]);
       
       // Add user query
       const userMessage = `
-URGENT INVESTIGATION NEEDED: We've noticed a significant spike in our AWS costs this month, 
-almost double what we normally spend. Our month-to-date bill is already over $4,000 
-when we normally spend about $2,000 for the entire month.
-
-Can you help investigate what's causing this cost increase? We need a thorough multi-phase analysis:
-
-1. First identify what services or resources are causing the unusual costs and if there's 
-   any suspicious activity or potential security issues
-
-2. Then provide a detailed analysis of the root cause and potential impact to our business
-
-3. Finally recommend specific actions we should take immediately and preventive measures 
-   for the future
-
-Our team is really concerned about this as we're a small startup and this could impact our runway.
-Please be thorough and investigate this step-by-step.
+I've noticed our AWS costs have gone up significantly this month. Can you help me figure out what's causing this and how we can optimize our spending?
       `;
       
       setMessages(prev => [...prev, {
@@ -187,7 +169,6 @@ Please be thorough and investigate this step-by-step.
         if (data.status === 'complete') {
           isComplete = true;
           setIsRunning(false);
-          setShowSteps(true); // Automatically show steps visualization when complete
         } else {
           // Wait before polling again
           await new Promise(resolve => setTimeout(resolve, 2000));
@@ -246,33 +227,33 @@ Please be thorough and investigate this step-by-step.
     const steps = [
       {
         title: "Investigation Initiated",
-        description: "Cost spike analysis triggered with specialized agents",
+        description: "Cost analysis triggered with specialized agents",
         icon: "📋",
-        details: "The classifier agent analyzes the request and distributes tasks to specialized AWS agents."
+        details: "The classifier agent analyzes the request and routes it to specialized AWS agents."
       },
       {
         title: "Initial Analysis",
-        description: "Agents concurrently analyze EC2, billing, security, and logs",
+        description: "Agents analyze available resources using built-in tools",
         icon: "🔍",
-        details: "Each specialized agent examines their respective AWS domain to identify anomalies."
+        details: "Specialized agents use their built-in tools to identify potential issues."
       },
       {
-        title: "Root Cause Identification",
-        description: "Security breach identified, unauthorized instance discovered",
-        icon: "⚠️",
-        details: "Evidence from all agents converges on a security breach involving cryptocurrency mining."
-      },
-      {
-        title: "Remediation Planning",
-        description: "Comprehensive action plan developed",
+        title: "Dynamic Tool Generation",
+        description: "Agents generate new tools for deeper analysis",
         icon: "🛠️",
-        details: "Agents collaborate to develop short and long-term fixes across EC2, IAM, monitoring, and billing."
+        details: "When built-in tools aren't enough, agents create new tools to address specific requirements."
+      },
+      {
+        title: "Recommendation Development",
+        description: "Comprehensive action plan created",
+        icon: "💡",
+        details: "Agents work together to develop optimization recommendations and future strategies."
       },
       {
         title: "Final Recommendations",
-        description: "Immediate actions, short-term fixes, and long-term strategy",
+        description: "Actions for cost optimization presented",
         icon: "✅",
-        details: "A complete remediation strategy is presented with concrete steps and expected outcomes."
+        details: "A complete strategy is presented with immediate, short-term, and long-term recommendations."
       }
     ];
 
@@ -342,12 +323,11 @@ Please be thorough and investigate this step-by-step.
                   </div>
                 )}
 
-                {/* Key findings for step 3 */}
+                {/* Display dynamic tool generation for step 3 */}
                 {index === 2 && isActive && (
-                  <div className="mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded-md text-xs w-full">
-                    <span className="font-semibold block mb-1">Key Finding:</span> 
-                    Cryptocurrency mining software was installed on an unauthorized p3.8xlarge instance 
-                    launched with compromised IAM credentials.
+                  <div className="mt-2 p-2 bg-blue-500/10 border border-blue-500/20 rounded-md text-xs w-full">
+                    <span className="font-semibold block mb-1">Dynamic Capability:</span> 
+                    Agents can create new tools on-the-fly when they encounter tasks that their built-in tools can't handle.
                   </div>
                 )}
               </div>
@@ -364,25 +344,25 @@ Please be thorough and investigate this step-by-step.
                 <div className="stat-figure text-secondary">💰</div>
                 <div className="stat-title">Cost Impact</div>
                 <div className="stat-value text-secondary">$2,100</div>
-                <div className="stat-desc">Additional expenses</div>
+                <div className="stat-desc">Potential savings</div>
               </div>
               <div className="stat bg-base-100 rounded-lg">
                 <div className="stat-figure text-error">⏱️</div>
-                <div className="stat-title">Response Time</div>
-                <div className="stat-value text-error">1-2 days</div>
-                <div className="stat-desc">To normal spending</div>
+                <div className="stat-title">Implementation Time</div>
+                <div className="stat-value text-error">1-3 days</div>
+                <div className="stat-desc">For main optimizations</div>
               </div>
               <div className="stat bg-base-100 rounded-lg">
                 <div className="stat-figure text-primary">💸</div>
-                <div className="stat-title">Potential Recovery</div>
-                <div className="stat-value text-primary">40-60%</div>
-                <div className="stat-desc">Service credits</div>
+                <div className="stat-title">New Tools Created</div>
+                <div className="stat-value text-primary">3+</div>
+                <div className="stat-desc">For custom analysis</div>
               </div>
               <div className="stat bg-base-100 rounded-lg">
                 <div className="stat-figure text-success">🛡️</div>
-                <div className="stat-title">Risk Reduction</div>
-                <div className="stat-value text-success">80%</div>
-                <div className="stat-desc">After fixes</div>
+                <div className="stat-title">Long-term Savings</div>
+                <div className="stat-value text-success">30%</div>
+                <div className="stat-desc">Estimated</div>
               </div>
             </div>
           </div>
@@ -420,8 +400,8 @@ Please be thorough and investigate this step-by-step.
       {/* Header */}
       <div className="p-4 bg-base-100 shadow-md">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-2xl font-bold">Multi-Agent Orchestration Demo</h1>
-          <p className="text-sm opacity-75">This demo shows how multiple AI agents can work together to solve complex problems.</p>
+          <h1 className="text-2xl font-bold">Dynamic Multi-Agent Orchestration Demo</h1>
+          <p className="text-sm opacity-75">This demo shows how multiple AI agents can work together and dynamically create new tools as needed.</p>
         </div>
       </div>
       
@@ -487,7 +467,6 @@ Please be thorough and investigate this step-by-step.
                 </div>
                 <div className="flex-1">
                   <div className="font-medium capitalize">{name.replace('_', ' ')}</div>
-                  <div className="text-xs opacity-70">{agent.responses} responses</div>
                 </div>
                 <div className="badge badge-sm" data-agent-status={getAgentStatus(name)}>
                   {(() => {
@@ -515,14 +494,6 @@ Please be thorough and investigate this step-by-step.
             ))}
             
             <div className="mt-auto pt-4 space-y-4">
-              {iterations > 0 && (
-                <button 
-                  className="btn btn-secondary w-full btn-sm"
-                  onClick={() => setShowSteps(!showSteps)}
-                >
-                  {showSteps ? 'Hide Process Steps' : 'Show Process Steps'}
-                </button>
-              )}
               
               <button 
                 className={`btn btn-primary w-full ${isRunning ? 'btn-disabled' : ''}`}
@@ -558,14 +529,6 @@ Please be thorough and investigate this step-by-step.
                 ) : 'Start Demo'}
               </button>
               
-              {iterations > 0 && (
-                <button 
-                  className="btn btn-secondary"
-                  onClick={() => setShowSteps(!showSteps)}
-                >
-                  {showSteps ? 'Hide Steps' : 'Show Steps'}
-                </button>
-              )}
             </div>
             
             <div className="stats shadow w-full">
@@ -608,16 +571,6 @@ Please be thorough and investigate this step-by-step.
             </div>
           </div>
 
-          {/* Steps Visualization (when toggled) */}
-          {showSteps && (
-            <div className="bg-base-100 rounded-box shadow-lg p-4 mb-4 overflow-y-auto max-h-[50vh]">
-              <h2 className="font-bold text-lg mb-2 flex items-center justify-between">
-                <span>Investigation Process</span>
-                <button className="btn btn-circle btn-ghost btn-xs" onClick={() => setShowSteps(false)}>✕</button>
-              </h2>
-              {renderStepsVisualization()}
-            </div>
-          )}
           
           {/* Message Thread */}
           <div className="bg-base-100 rounded-box shadow-lg p-4 overflow-y-auto flex-1 relative">
@@ -629,8 +582,8 @@ Please be thorough and investigate this step-by-step.
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <p className="text-xl font-medium">AWS Multi-Agent Demo</p>
-                <p className="text-sm mt-2 max-w-md">Click "Start Demo" to see multiple AI agents work together to investigate and solve an AWS cost spike issue.</p>
+                <p className="text-xl font-medium">Dynamic Multi-Agent Demo</p>
+                <p className="text-sm mt-2 max-w-md">Click "Start Demo" to see multiple AI agents work together to analyze AWS costs, with the ability to generate new tools as needed.</p>
               </div>
             ) : (
               <div className="space-y-6">
@@ -695,7 +648,7 @@ Please be thorough and investigate this step-by-step.
                             
                             <p className="text-sm mb-3">
                               {message.iteration === 1 
-                                ? "Based on initial findings, the classifier selected these agents for the remediation planning phase:" 
+                                ? "Based on initial findings, the classifier selected these agents for deeper analysis:" 
                                 : "The classifier coordinated these agents for the final recommendations:"}
                             </p>
                             
@@ -728,245 +681,91 @@ Please be thorough and investigate this step-by-step.
                                 })
                               }
                             </div>
-                            
-                            {/* Show agents that were removed */}
                             {removedInNextIteration.length > 0 && (
-                              <div className="mt-3 pt-2 border-t border-base-300">
-                                <p className="text-xs mb-2">Agents no longer needed for the next iteration:</p>
-                                <div className="flex flex-wrap gap-1">
-                                  {removedInNextIteration.map(agentName => {
-                                    const agent = getAgentData(agentName);
-                                    return (
-                                      <div 
-                                        key={agentName}
-                                        className="badge badge-outline badge-sm opacity-50"
-                                      >
-                                        <span>{agent.icon}</span> <span className="capitalize">{agentName.replace('_', ' ')}</span>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
+                              <div className="mt-3 p-2 bg-base-200 rounded-md text-xs">
+                                <span className="font-semibold">Completed tasks:</span> {removedInNextIteration.map(name => 
+                                  name.replace('_', ' ')).join(', ')}
                               </div>
                             )}
-                            
-                            <div className="mt-3 text-xs text-center opacity-70">
-                              {message.iteration === 1 
-                                ? "Shifting focus to detailed remediation planning" 
-                                : "Focusing on comprehensive final recommendations"}
-                            </div>
                           </div>
                         )}
                       </div>
                     );
                   }
                   
-                  // Normal message
-                  const isUser = message.role === 'user';
-                  const isSystem = message.role === 'system';
-                  const agentData = !isUser && !isSystem && message.agent ? getAgentData(message.agent) : null;
-                  const isClassifierDecision = message.agent === 'classifier' && (
-                    message.content.includes('help investigate') || 
-                    message.content.includes('coordinate with specialized agents') ||
-                    message.content.includes('NEXT_STEP') ||
-                    message.content.includes('select specialized agents') ||
-                    message.id?.includes('classifier-decision')
-                  );
+                  // Regular message
+                  const agent = message.agent ? getAgentData(message.agent) : null;
                   
                   return (
-                    <div key={index} className={`chat ${isUser ? 'chat-end' : 'chat-start'}`}>
-                      <div className="chat-image avatar">
-                        <div className="w-10 rounded-full">
-                          {isUser ? (
-                            <div className="bg-primary text-primary-content rounded-full w-full h-full flex items-center justify-center">
-                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                              </svg>
-                            </div>
-                          ) : isSystem ? (
-                            <div className="bg-accent text-accent-content rounded-full w-full h-full flex items-center justify-center">
-                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-                              </svg>
-                            </div>
-                          ) : (
-                            <div 
-                              className={`${agentData?.color || 'bg-secondary'} text-white rounded-full w-full h-full flex items-center justify-center cursor-pointer`}
-                              onClick={() => setSelectedAgent(selectedAgent === message.agent ? null : message.agent)}
-                            >
-                              <span>{agentData?.icon || '🤖'}</span>
-                            </div>
-                          )}
+                    <div key={index} className={`chat ${message.role === 'user' ? 'chat-end' : 'chat-start'}`}>
+                      {message.role === 'system' ? (
+                        // System message
+                        <div className="chat-bubble chat-bubble-secondary">
+                          <ReactMarkdown components={components}>
+                            {message.content}
+                          </ReactMarkdown>
                         </div>
-                      </div>
-                      <div className="chat-header">
-                        {isUser ? 'You' : isSystem ? 'System' : (
-                          <span 
-                            className="capitalize cursor-pointer hover:underline"
-                            onClick={() => setSelectedAgent(selectedAgent === message.agent ? null : message.agent)}
-                          >
-                            {message.agent?.replace('_', ' ') || 'Assistant'}
-                          </span>
-                        )}
-                        <time className="text-xs opacity-50 ml-1">{new Date(message.timestamp || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</time>
-                      </div>
-                      <div className={`chat-bubble ${
-                        isUser 
-                          ? 'chat-bubble-primary' 
-                          : isSystem 
-                            ? 'chat-bubble-accent' 
-                            : message.agent === 'ec2_agent'
-                              ? 'chat-bubble-blue-500'
-                              : message.agent === 'billing_agent'
-                                ? 'chat-bubble-green-500'
-                                : message.agent === 'security_agent'
-                                  ? 'chat-bubble-red-500'
-                                  : message.agent === 'logs_agent'
-                                    ? 'chat-bubble-purple-500'
-                                    : message.agent === 'classifier'
-                                      ? 'chat-bubble-amber-500'
-                                      : 'chat-bubble-secondary'
-                        } shadow-md max-w-4xl`}>
-                        <ReactMarkdown components={components}>
-                          {message.content}
-                        </ReactMarkdown>
-                        
-                        {/* Command keywords highlight */}
-                        {(message.content.includes('NEXT_STEP') || message.content.includes('CONTINUE')) && (
-                          <div className="mt-2 text-xs bg-base-300 rounded-md p-1 font-mono">
-                            {message.content.includes('NEXT_STEP') ? (
-                              <span className="text-warning">NEXT_STEP: Classifier is delegating to another agent</span>
-                            ) : (
-                              <span className="text-info">CONTINUE: Requesting additional processing by agents</span>
+                      ) : message.role === 'user' ? (
+                        // User message
+                        <>
+                          <div className="chat-header opacity-70">
+                            You
+                            {message.timestamp && (
+                              <time className="text-xs opacity-50 ml-2">
+                                {new Date(message.timestamp).toLocaleTimeString()}
+                              </time>
                             )}
                           </div>
-                        )}
-
-                        {/* If this is the classifier making a decision, show the delegation visually */}
-                        {isClassifierDecision && (
-                          <div className="mt-3 pt-2 border-t border-amber-500/30">
-                            <div className="text-sm font-medium mb-2 flex items-center gap-1">
-                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5 text-amber-500">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-                              </svg>
-                              <span>Classifier is making an orchestration decision</span>
-                            </div>
-                            
-                            <div className="bg-amber-500/5 p-3 rounded-lg border border-amber-500/20">
-                              <div className="text-xs font-medium mb-2">Evaluating and selecting agents for {message.iteration ? `iteration ${message.iteration}` : 'initial analysis'}:</div>
-                              <div className="grid grid-cols-2 gap-2">
-                                {Object.entries(agents)
-                                  .filter(([name]) => name !== 'classifier')
-                                  .map(([name, agent]) => {
-                                    const isSelected = message.iteration && iterationAgents[message.iteration]?.includes(name);
-                                    // For the first classifier message, assume all agents are selected
-                                    const isInitialSelect = !message.iteration && message.content.includes('coordinate with specialized agents');
-                                    const isActive = isSelected || isInitialSelect;
-                                    
-                                    return (
-                                      <div 
-                                        key={name}
-                                        className={`flex items-center gap-1 p-2 rounded border transition-all ${
-                                          isActive 
-                                            ? `${agent.color.replace('bg-', 'bg-')}/10 border-${agent.color.replace('bg-', '')}/30` 
-                                            : 'bg-base-200/30 border-base-300'
-                                        }`}
-                                      >
-                                        <div className={`${isActive ? agent.color : 'bg-base-300'} text-white rounded-full w-6 h-6 flex items-center justify-center`}>
-                                          <span>{agent.icon}</span>
-                                        </div>
-                                        <div className="flex-1">
-                                          <span className="text-xs capitalize">{name.replace('_', ' ')}</span>
-                                          {isActive && (
-                                            <span className="badge badge-xs badge-success ml-1">Selected</span>
-                                          )}
-                                        </div>
-                                      </div>
-                                    );
-                                  })
-                                }
-                              </div>
-                              
-                              <div className="mt-3 pt-2 border-t border-amber-500/20">
-                                <div className="flex justify-between items-center text-xs">
-                                  <span className="font-medium">Current Phase:</span>
-                                  <span className="badge badge-sm badge-warning">
-                                    {message.iteration === 1 
-                                      ? "Initial findings analysis" 
-                                      : message.iteration === 2 
-                                        ? "Remediation planning"
-                                        : message.iteration === 3
-                                          ? "Implementation timeline"
-                                          : "Issue assessment"}
-                                  </span>
-                                </div>
-                                
-                                <div className="flex justify-between items-center mt-2 text-xs">
-                                  <span className="font-medium">Next Action:</span>
-                                  <span className="badge badge-sm badge-info">
-                                    {message.content.includes('NEXT_STEP')
-                                      ? "Delegating to agents"
-                                      : message.content.includes('CONTINUE')
-                                        ? "Continuing analysis" 
-                                        : "Coordinating agents"}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
+                          <div className="chat-bubble chat-bubble-primary">
+                            <ReactMarkdown components={components}>
+                              {message.content}
+                            </ReactMarkdown>
                           </div>
-                        )}
-                      </div>
-                      {message.iteration && (
-                        <div className="chat-footer opacity-70">
-                          <span className="badge badge-sm">Iteration {message.iteration}</span>
-                        </div>
+                        </>
+                      ) : (
+                        // Agent message
+                        <>
+                          {agent && (
+                            <div className="chat-header opacity-70 flex items-center">
+                              <div 
+                                className={`${agent.color} text-white rounded-full w-5 h-5 flex items-center justify-center mr-1 text-xs`}
+                              >
+                                <span>{agent.icon}</span>
+                              </div>
+                              <span className="capitalize">{message.agent.replace('_', ' ')}</span>
+                              {message.timestamp && (
+                                <time className="text-xs opacity-50 ml-2">
+                                  {new Date(message.timestamp).toLocaleTimeString()}
+                                </time>
+                              )}
+                            </div>
+                          )}
+                          <div className={`chat-bubble ${message.agent === 'classifier' ? 'chat-bubble-warning' : 
+                            message.agent === 'aws_agent' ? 'chat-bubble-info' : 
+                            message.agent === 'logging_agent' ? 'chat-bubble-accent' : 
+                            'chat-bubble-neutral'}`}>
+                            <ReactMarkdown components={components}>
+                              {message.content}
+                            </ReactMarkdown>
+                          </div>
+                        </>
                       )}
                     </div>
                   );
                 })}
-                
-                {/* Loading indicator */}
-                {isRunning && (
-                  <div className="chat chat-start">
-                    <div className="chat-image avatar">
-                      <div className="w-10 rounded-full">
-                        <div className="bg-info text-info-content rounded-full w-full h-full flex items-center justify-center">
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="chat-bubble chat-bubble-info shadow-md">
-                      <div className="flex items-center space-x-2">
-                        <span className="loading loading-dots loading-sm"></span>
-                        <span>Multiple agents processing...</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Error message */}
-                {error && (
-                  <div className="chat chat-start">
-                    <div className="chat-image avatar">
-                      <div className="w-10 rounded-full">
-                        <div className="bg-error text-error-content rounded-full w-full h-full flex items-center justify-center">
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="chat-bubble chat-bubble-error shadow-md">
-                      {error}
-                    </div>
-                  </div>
-                )}
+                <div ref={messagesEndRef} />
               </div>
             )}
             
-            {/* Invisible element for auto-scrolling */}
-            <div ref={messagesEndRef} />
+            {/* Error display */}
+            {error && (
+              <div className="alert alert-error mt-4">
+                <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  <span>{error}</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -974,4 +773,4 @@ Please be thorough and investigate this step-by-step.
   );
 };
 
-export default AgentDemo; 
+export default AgentDemo;
